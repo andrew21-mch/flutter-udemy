@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quizapp/answer_button.dart';
-import 'package:quizapp/style_text.dart';
 
 import 'package:quizapp/data/questions.dart';
 
 class QuestionsScreen extends StatefulWidget {
-  const QuestionsScreen({super.key});
+  const QuestionsScreen({super.key, required this.onselectAnswer});
 
+  final void Function(String answer) onselectAnswer;
   @override
   State<QuestionsScreen> createState() {
     return _QuestionsScreenState();
@@ -18,8 +18,9 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
   var currentQuestionIndex = 0;
 
-  void answerQuestion(){
+  void answerQuestion(selectedAnswer){
     setState(() {
+      widget.onselectAnswer(selectedAnswer);
     // currentQuestionIndex = currentQuestionIndex + 1;
     // currentQuestionIndex += 1;
     currentQuestionIndex++;
@@ -53,7 +54,9 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 return Container(
 
                   margin: EdgeInsets.symmetric(vertical: 2, horizontal: 0),
-                  child: AnswerButton(answer, answerQuestion)
+                  child: AnswerButton(answer, (){
+                    answerQuestion(answer);
+                  })
                 );
               }),
             ],
