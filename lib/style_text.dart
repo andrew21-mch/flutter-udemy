@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class StyleText extends StatelessWidget {
   const StyleText(this.text, this.size, {super.key});
@@ -9,7 +10,8 @@ class StyleText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(color: Colors.white, fontSize: size!),
+      style: GoogleFonts.roboto(color: Colors.white, fontSize: size!),
+      textAlign: TextAlign.center,
     );
   }
 }
