@@ -8,7 +8,7 @@ class QuestionsSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400,
+      height: 500,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -20,7 +20,7 @@ class QuestionsSummary extends StatelessWidget {
 
                 children: [
                   Container(
-                    width: 30, 
+                    width: 35, 
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: data['correct_answer'] == data['user_answer'] ? Colors.green : Colors.red,
