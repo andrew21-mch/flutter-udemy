@@ -12,10 +12,20 @@ class StartScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(
-            'assets/images/quiz-logo.png',
-            width: 200,
-            color: const Color.fromARGB(146, 255, 255, 255),
+          Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 8,
+                )
+              ]
+            ),
+            child: Image.asset(
+              'assets/images/quiz-logo.png',
+              width: 200,
+              color: const Color.fromARGB(146, 226, 209, 209),
+            ),
           ),
 
           //  Opacity( // used to add oppacity to an image
@@ -30,11 +40,13 @@ class StartScreen extends StatelessWidget {
           SizedBox(height: 20),
           OutlinedButton.icon(
             onPressed: startQuiz,
-            style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+            style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                iconColor: Colors.white,
+                side: BorderSide(color: Colors.white, width: 2)),
             label: StyleText("Start Quiz", 12),
             icon: Icon(
               Icons.arrow_right_alt,
-              color: Colors.white,
             ),
           )
         ],

@@ -51,13 +51,13 @@ class ResultScreen extends StatelessWidget {
             ),
             OutlinedButton.icon(
               onPressed: onRestart,
-              icon: Icon(Icons.restart_alt_outlined),
+              icon: Icon(Icons.restart_alt_outlined, color: Colors.white),
               label: StyleText("Restart Quiz", 12),
               style: OutlinedButton.styleFrom(
                 iconColor: Colors.white,
-                foregroundColor: Colors.white60
-                
-              )
+                side: BorderSide(color: Colors.white, width: 2),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
             )
           ],
         ),
