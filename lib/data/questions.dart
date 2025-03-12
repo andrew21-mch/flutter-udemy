@@ -20,27 +20,27 @@ const questions = [
     "StatelessWidget is only used in Android apps, while StatefulWidget is used in iOS apps.",
     "StatelessWidget requires external packages, while StatefulWidget does not."
   ]),
-  // QuizQuestion(
-  //     "Which widget is used to arrange children in a horizontal direction?",
-  //     ["Row", "Column", "Stack", "Container"]),
-  // QuizQuestion(
-  //     "What is the role of the 'pubspec.yaml' file in a Flutter project?", [
-  //   "The 'pubspec.yaml' file is used to manage dependencies, assets, and metadata for a Flutter project.",
-  //   "The 'pubspec.yaml' file contains the main Dart code for a Flutter application.",
-  //   "The 'pubspec.yaml' file is responsible for configuring the database connection in a Flutter app.",
-  //   "The 'pubspec.yaml' file is used to define the layout and structure of a Flutter UI."
-  // ]),
-  // QuizQuestion(
-  //     "Which package is commonly used for making HTTP requests in Flutter?",
-  //     ["http", "dio", "graphql", "url_launcher"]),
-  // QuizQuestion("Which widget is used to add padding to a Flutter UI?",
-  //     ["Padding", "Container", "SizedBox", "Expanded"]),
-  // QuizQuestion("How does Flutter achieve high performance in rendering UIs?", [
-  //   "Flutter uses its own high-performance rendering engine called Skia to draw UIs directly onto the screen.",
-  //   "Flutter compiles its code using JavaScript to optimize performance.",
-  //   "Flutter uses HTML and CSS to render UIs in a web browser before displaying them on mobile.",
-  //   "Flutter relies on the device’s default UI framework to render widgets."
-  // ]),
+  QuizQuestion(
+      "Which widget is used to arrange children in a horizontal direction?",
+      ["Row", "Column", "Stack", "Container"]),
+  QuizQuestion(
+      "What is the role of the 'pubspec.yaml' file in a Flutter project?", [
+    "The 'pubspec.yaml' file is used to manage dependencies, assets, and metadata for a Flutter project.",
+    "The 'pubspec.yaml' file contains the main Dart code for a Flutter application.",
+    "The 'pubspec.yaml' file is responsible for configuring the database connection in a Flutter app.",
+    "The 'pubspec.yaml' file is used to define the layout and structure of a Flutter UI."
+  ]),
+  QuizQuestion(
+      "Which package is commonly used for making HTTP requests in Flutter?",
+      ["http", "dio", "graphql", "url_launcher"]),
+  QuizQuestion("Which widget is used to add padding to a Flutter UI?",
+      ["Padding", "Container", "SizedBox", "Expanded"]),
+  QuizQuestion("How does Flutter achieve high performance in rendering UIs?", [
+    "Flutter uses its own high-performance rendering engine called Skia to draw UIs directly onto the screen.",
+    "Flutter compiles its code using JavaScript to optimize performance.",
+    "Flutter uses HTML and CSS to render UIs in a web browser before displaying them on mobile.",
+    "Flutter relies on the device’s default UI framework to render widgets."
+  ]),
   // QuizQuestion("Which widget allows users to input text in Flutter?",
   //     ["TextField", "Text", "Container", "ListTile"]),
   // QuizQuestion("What is hot reload in Flutter?", [
