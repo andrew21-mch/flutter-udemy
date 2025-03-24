@@ -1,5 +1,6 @@
 import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
+import 'expense_detail.dart'; // Import the detail screen
 
 class ExpenseItem extends StatelessWidget {
   const ExpenseItem(this.expense, {super.key});
@@ -8,30 +9,46 @@ class ExpenseItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ExpenseDetail(expense: expense),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(12), // Adds ripple effect
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(expense.title),
-              SizedBox(height: 4),
+              Text(
+                expense.title,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 4),
               Row(
                 children: [
-                  Text('\X\O\F ${expense.amount.toStringAsFixed(2)}'),
+                  Text('XOF ${expense.amount.toStringAsFixed(2)}'),
                   const Spacer(),
                   Row(
                     children: [
                       Icon(categoryIcons[expense.category]),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(expense.formatedDate)
+                      const SizedBox(width: 8),
+                      Text(expense.formatedDate),
                     ],
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
-          )),
+          ),
+        ),
+      ),
     );
   }
 }

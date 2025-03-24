@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:expense_tracker/models/expense.dart';
 
 class NewExpense extends StatefulWidget {
@@ -14,19 +13,13 @@ class NewExpense extends StatefulWidget {
 }
 
 class _NewExpenseState extends State<NewExpense> {
-  // var _enteredTitle = '';
-
-  // void _saveTitleInput(String inputValue){
-  //   _enteredTitle = inputValue;
-  // }
-
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
+  final _descriptionController = TextEditingController(); // Added description controller
   DateTime? _selectedDate;
-
   Category _selectedCategory = Category.food;
 
-  void setCategory(category) {
+  void setCategory(Category category) {
     setState(() {
       _selectedCategory = category;
     });
@@ -34,20 +27,19 @@ class _NewExpenseState extends State<NewExpense> {
 
   void submitExpenseData() {
     final enteredAmount = double.tryParse(_amountController.text.trim());
-    final amountIsInvalid =
-        (enteredAmount == null) || (enteredAmount <= 0) ? true : false;
+    final amountIsInvalid = (enteredAmount == null) || (enteredAmount <= 0);
+    final enteredTitle = _titleController.text.trim();
+    final enteredDescription = _descriptionController.text.trim();
 
-    if (_titleController.text.trim().isEmpty ||
-        amountIsInvalid ||
-        _selectedDate == null) {
+    if (enteredTitle.isEmpty || amountIsInvalid || _selectedDate == null) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           icon: Icon(Icons.warning),
           iconColor: Colors.red,
-          title: Text("invalid input"),
+          title: Text("Invalid Input"),
           content: Text(
-              "Please make sure a valid title, amount, date and catery where entered"),
+              "Please make sure a valid title, amount, date, and category were entered."),
           actions: [
             TextButton(
                 onPressed: () {
@@ -61,32 +53,15 @@ class _NewExpenseState extends State<NewExpense> {
     }
 
     widget.onAddExpense(Expense(
-        title: _titleController.text,
-        amount: enteredAmount,
-        date: _selectedDate!,
-        category: _selectedCategory));
-
-    // showDialog(
-    //   context: context,
-    //   builder: (ctc) => AlertDialog(
-    //     title: Text("Expense Added"),
-    //     content: Text("Your Expenese was added"),
-    //     icon: Icon(Icons.check),
-    //     iconColor: Colors.green,
-    //     actions: [
-    //       TextButton(
-    //         onPressed: () => Navigator.pop(context),
-    //         child: Text("Close"),
-    //       )
-    //     ],
-    //   ),
-    // );
+      title: enteredTitle,
+      amount: enteredAmount,
+      date: _selectedDate!,
+      category: _selectedCategory,
+      description: enteredDescription.isNotEmpty ? enteredDescription : null,
+    ));
 
     Navigator.pop(context);
   }
-
-
-  
 
   void _presentDatePicker() async {
     final now = DateTime.now();
@@ -102,85 +77,91 @@ class _NewExpenseState extends State<NewExpense> {
 
   @override
   void dispose() {
-    super.dispose();
     _titleController.dispose();
     _amountController.dispose();
+    _descriptionController.dispose(); // Dispose the new controller
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.fromLTRB(16, 120, 16, 16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController,
-              maxLength: 100,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  icon: Icon(Icons.title), label: Text("Enter Title")),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _amountController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        prefixText: "XOF ",
-                        icon: Icon(Icons.money),
-                        label: Text("How much")),
-                  ),
+      padding: EdgeInsets.fromLTRB(16, 120, 16, 16),
+      child: Column(
+        children: [
+          TextField(
+            controller: _titleController,
+            maxLength: 100,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+                icon: Icon(Icons.title), label: Text("Enter Title")),
+          ),
+          TextField(
+            controller: _descriptionController,
+            maxLength: 200,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+                icon: Icon(Icons.description), label: Text("Enter Description (Optional)")),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      prefixText: "XOF ",
+                      icon: Icon(Icons.money),
+                      label: Text("How much")),
                 ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(_selectedDate == null
-                          ? "No date selected"
-                          : formatter.format(_selectedDate!)),
-                      IconButton(
-                        onPressed: _presentDatePicker,
-                        icon: Icon(Icons.calendar_month),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Spacer(),
-                DropdownButton(
-                    value: _selectedCategory,
-                    items: Category.values.map((item) {
-                      return DropdownMenuItem(
-                        value: item,
-                        child: Text(
-                          item.name.toUpperCase(),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) => setCategory(value!)),
-                Spacer(),
-                ElevatedButton(
-                    style: ButtonStyle(),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("Cancel")),
-                ElevatedButton(
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(_selectedDate == null
+                        ? "No date selected"
+                        : formatter.format(_selectedDate!)),
+                    IconButton(
+                      onPressed: _presentDatePicker,
+                      icon: Icon(Icons.calendar_month),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Spacer(),
+              DropdownButton(
+                  value: _selectedCategory,
+                  items: Category.values.map((item) {
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(
+                        item.name.toUpperCase(),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) => setCategory(value!)),
+              Spacer(),
+              ElevatedButton(
                   onPressed: () {
-                    submitExpenseData();
+                    Navigator.pop(context);
                   },
-                  child: Text("Save Expense"),
-                ),
-                Spacer(),
-              ],
-            )
-          ],
-        ));
+                  child: Text("Cancel")),
+              ElevatedButton(
+                onPressed: submitExpenseData,
+                child: Text("Save Expense"),
+              ),
+              Spacer(),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }

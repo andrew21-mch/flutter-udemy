@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:expense_tracker/data/expenses.dart';
+import 'package:expense_tracker/widgets/charts/chart.dart';
 import 'package:expense_tracker/widgets/expenses_list/expenses_list.dart';
 import 'package:expense_tracker/models/expense.dart';
+import 'package:expense_tracker/widgets/expenses_list/stats.dart';
 import 'package:expense_tracker/widgets/new_expense.dart';
 import 'package:flutter/material.dart';
 
@@ -8,33 +12,64 @@ class Expenses extends StatefulWidget {
   const Expenses({super.key});
 
   @override
-  State<Expenses> createState() {
-    return _ExpensesState();
-  }
+  State<Expenses> createState() => _ExpensesState();
 }
 
 class _ExpensesState extends State<Expenses> {
-  final List<Expense> _expenses = expenses;
+  List<Expense> _expenses = [];
 
-  void _openAddExpenseOverlay() {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        builder: (ctx) => NewExpense(onAddExpense: _addExpense));
+  @override
+  void initState() {
+    super.initState();
+    _loadExpenses();
   }
 
+  /// **Loads expenses from SharedPreferences**
+  Future<void> _loadExpenses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final expenseData = prefs.getString('expenses');
+
+    if (expenseData != null) {
+      final List<dynamic> decodedData = jsonDecode(expenseData);
+      setState(() {
+        _expenses = decodedData.map((e) => Expense.fromJson(e)).toList();
+      });
+    }
+  }
+
+  /// **Saves expenses to SharedPreferences**
+  Future<void> _saveExpenses() async {
+    final prefs = await SharedPreferences.getInstance();
+    final encodedData =
+        jsonEncode(_expenses.map((e) => e.toJson()).toList());
+    await prefs.setString('expenses', encodedData);
+  }
+
+  /// **Opens the add expense modal**
+  void _openAddExpenseOverlay() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: true,
+      builder: (ctx) => NewExpense(onAddExpense: _addExpense),
+    );
+  }
+
+  /// **Adds a new expense**
   void _addExpense(Expense expense) {
     setState(() {
       _expenses.add(expense);
     });
+    _saveExpenses(); // Save after adding
   }
 
+  /// **Removes an expense**
   void _removeExpense(Expense expense) {
     final expenseIndex = _expenses.indexOf(expense);
     setState(() {
-      expenses.remove(expense);
+      _expenses.remove(expense);
     });
+    _saveExpenses(); // Save after deleting
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -42,12 +77,14 @@ class _ExpensesState extends State<Expenses> {
         content: Text("Expense Deleted"),
         duration: Duration(seconds: 3),
         action: SnackBarAction(
-            label: "Undo",
-            onPressed: () {
-              setState(() {
-                _expenses.insert(expenseIndex, expense);
-              });
-            }),
+          label: "Undo",
+          onPressed: () {
+            setState(() {
+              _expenses.insert(expenseIndex, expense);
+            });
+            _saveExpenses(); // Save after undo
+          },
+        ),
       ),
     );
   }
@@ -56,14 +93,12 @@ class _ExpensesState extends State<Expenses> {
   Widget build(BuildContext context) {
     Widget mainContent = Center(
       child: Card(
-        color: Colors.white,
         child: Container(
           padding: EdgeInsets.all(12),
           child: SizedBox(
             height: 130,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
               children: [
                 Icon(Icons.hourglass_empty),
                 Text("No Expenses Found")
@@ -73,31 +108,29 @@ class _ExpensesState extends State<Expenses> {
         ),
       ),
     );
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Expense Tracker",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color.fromARGB(255, 9, 77, 67),
+        title: Text("Expense Tracker"),
         actions: [
           IconButton(
             onPressed: _openAddExpenseOverlay,
             icon: Icon(Icons.add),
-            color: Colors.white,
           )
         ],
       ),
       body: Column(
         children: [
-          Text("The Chart Here"),
+          Chart(expenses: _expenses),
+          Stats(expenses: _expenses),
           Expanded(
-              child: _expenses.isNotEmpty
-                  ? ExpensesList(
-                      expenses: _expenses,
-                      onRemoveExpense: _removeExpense,
-                    )
-                  : mainContent),
+            child: _expenses.isNotEmpty
+                ? ExpensesList(
+                    expenses: _expenses,
+                    onRemoveExpense: _removeExpense,
+                  )
+                : mainContent,
+          ),
         ],
       ),
     );
