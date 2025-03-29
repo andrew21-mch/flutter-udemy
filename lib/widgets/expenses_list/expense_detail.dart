@@ -83,7 +83,7 @@ class _ExpenseDetailState extends State<ExpenseDetail> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceVariant, // Themed surface color
+                  color: colorScheme.surfaceContainerHighest, // Themed surface color
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
