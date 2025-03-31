@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/models/expense.dart';
 
@@ -15,7 +18,8 @@ class NewExpense extends StatefulWidget {
 class _NewExpenseState extends State<NewExpense> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
-  final _descriptionController = TextEditingController(); // Added description controller
+  final _descriptionController =
+      TextEditingController(); // Added description controller
   DateTime? _selectedDate;
   Category _selectedCategory = Category.food;
 
@@ -25,13 +29,26 @@ class _NewExpenseState extends State<NewExpense> {
     });
   }
 
-  void submitExpenseData() {
-    final enteredAmount = double.tryParse(_amountController.text.trim());
-    final amountIsInvalid = (enteredAmount == null) || (enteredAmount <= 0);
-    final enteredTitle = _titleController.text.trim();
-    final enteredDescription = _descriptionController.text.trim();
-
-    if (enteredTitle.isEmpty || amountIsInvalid || _selectedDate == null) {
+  _showDialog() {
+    if (Platform.isIOS) {
+      showCupertinoDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          icon: Icon(Icons.warning),
+          iconColor: Colors.red,
+          title: Text("Invalid Input"),
+          content: Text(
+              "Please make sure a valid title, amount, date, and category were entered."),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                },
+                child: Text("Okay"))
+          ],
+        ),
+      );
+    } else {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -49,6 +66,17 @@ class _NewExpenseState extends State<NewExpense> {
           ],
         ),
       );
+    }
+  }
+
+  void submitExpenseData() {
+    final enteredAmount = double.tryParse(_amountController.text.trim());
+    final amountIsInvalid = (enteredAmount == null) || (enteredAmount <= 0);
+    final enteredTitle = _titleController.text.trim();
+    final enteredDescription = _descriptionController.text.trim();
+
+    if (enteredTitle.isEmpty || amountIsInvalid || _selectedDate == null) {
+      _showDialog();
       return;
     }
 
@@ -85,83 +113,88 @@ class _NewExpenseState extends State<NewExpense> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 120, 16, 16),
-      child: Column(
-        children: [
-          TextField(
-            controller: _titleController,
-            maxLength: 100,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-                icon: Icon(Icons.title), label: Text("Enter Title")),
-          ),
-          TextField(
-            controller: _descriptionController,
-            maxLength: 200,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-                icon: Icon(Icons.description), label: Text("Enter Description (Optional)")),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                      prefixText: "XOF ",
-                      icon: Icon(Icons.money),
-                      label: Text("How much")),
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      print(width);
+      return Padding(
+        padding: EdgeInsets.fromLTRB(16, width - 16, 16, 16),
+        child: Column(
+          children: [
+            TextField(
+              controller: _titleController,
+              maxLength: 100,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                  icon: Icon(Icons.title), label: Text("Enter Title")),
+            ),
+            TextField(
+              controller: _descriptionController,
+              maxLength: 200,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                  icon: Icon(Icons.description),
+                  label: Text("Enter Description (Optional)")),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                        prefixText: "XOF ",
+                        icon: Icon(Icons.money),
+                        label: Text("How much")),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(_selectedDate == null
-                        ? "No date selected"
-                        : formatter.format(_selectedDate!)),
-                    IconButton(
-                      onPressed: _presentDatePicker,
-                      icon: Icon(Icons.calendar_month),
-                    )
-                  ],
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(_selectedDate == null
+                          ? "No date selected"
+                          : formatter.format(_selectedDate!)),
+                      IconButton(
+                        onPressed: _presentDatePicker,
+                        icon: Icon(Icons.calendar_month),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Spacer(),
+                DropdownButton(
+                    value: _selectedCategory,
+                    items: Category.values.map((item) {
+                      return DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          item.name.toUpperCase(),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) => setCategory(value!)),
+                Spacer(),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Cancel")),
+                ElevatedButton(
+                  onPressed: submitExpenseData,
+                  child: Text("Save Expense"),
                 ),
-              )
-            ],
-          ),
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Spacer(),
-              DropdownButton(
-                  value: _selectedCategory,
-                  items: Category.values.map((item) {
-                    return DropdownMenuItem(
-                      value: item,
-                      child: Text(
-                        item.name.toUpperCase(),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) => setCategory(value!)),
-              Spacer(),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Cancel")),
-              ElevatedButton(
-                onPressed: submitExpenseData,
-                child: Text("Save Expense"),
-              ),
-              Spacer(),
-            ],
-          )
-        ],
-      ),
-    );
+                Spacer(),
+              ],
+            )
+          ],
+        ),
+      );
+    });
   }
 }
