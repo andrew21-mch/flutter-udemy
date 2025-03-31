@@ -50,11 +50,9 @@ class _ExpensesState extends State<Expenses> {
       context: context,
       isScrollControlled: true,
       isDismissible: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      useSafeArea: true,
+
       // let it respect the device features
-      
 
       builder: (ctx) => NewExpense(onAddExpense: _addExpense),
     );
