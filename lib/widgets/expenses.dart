@@ -50,6 +50,9 @@ class _ExpensesState extends State<Expenses> {
       context: context,
       isScrollControlled: true,
       isDismissible: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (ctx) => NewExpense(onAddExpense: _addExpense),
     );
   }
@@ -126,7 +129,7 @@ class _ExpensesState extends State<Expenses> {
         body: !isLargeScreen
             ? Column(
                 children: [
-                  Expanded(child: Chart(expenses: _expenses)),
+                  Chart(expenses: _expenses),
                   Stats(expenses: _expenses),
                   Expanded(
                     child: _expenses.isNotEmpty
