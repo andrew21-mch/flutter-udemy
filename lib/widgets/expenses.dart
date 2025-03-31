@@ -40,8 +40,7 @@ class _ExpensesState extends State<Expenses> {
   /// **Saves expenses to SharedPreferences**
   Future<void> _saveExpenses() async {
     final prefs = await SharedPreferences.getInstance();
-    final encodedData =
-        jsonEncode(_expenses.map((e) => e.toJson()).toList());
+    final encodedData = jsonEncode(_expenses.map((e) => e.toJson()).toList());
     await prefs.setString('expenses', encodedData);
   }
 
@@ -91,6 +90,11 @@ class _ExpensesState extends State<Expenses> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLargeScreen = width >= 600;
+
     Widget mainContent = Center(
       child: Card(
         child: Container(
@@ -110,29 +114,42 @@ class _ExpensesState extends State<Expenses> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Expense Tracker"),
-        actions: [
-          IconButton(
-            onPressed: _openAddExpenseOverlay,
-            icon: Icon(Icons.add),
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          Chart(expenses: _expenses),
-          Stats(expenses: _expenses),
-          Expanded(
-            child: _expenses.isNotEmpty
-                ? ExpensesList(
-                    expenses: _expenses,
-                    onRemoveExpense: _removeExpense,
-                  )
-                : mainContent,
-          ),
-        ],
-      ),
-    );
+        appBar: AppBar(
+          title: Text("Expense Tracker"),
+          actions: [
+            IconButton(
+              onPressed: _openAddExpenseOverlay,
+              icon: Icon(Icons.add),
+            )
+          ],
+        ),
+        body: !isLargeScreen
+            ? Column(
+                children: [
+                  Expanded(child: Chart(expenses: _expenses)),
+                  Stats(expenses: _expenses),
+                  Expanded(
+                    child: _expenses.isNotEmpty
+                        ? ExpensesList(
+                            expenses: _expenses,
+                            onRemoveExpense: _removeExpense,
+                          )
+                        : mainContent,
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  Expanded(child: Chart(expenses: _expenses)),
+                  Expanded(
+                    child: _expenses.isNotEmpty
+                        ? ExpensesList(
+                            expenses: _expenses,
+                            onRemoveExpense: _removeExpense,
+                          )
+                        : mainContent,
+                  ),
+                ],
+              ));
   }
 }
