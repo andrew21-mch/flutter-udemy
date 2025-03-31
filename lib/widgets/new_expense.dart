@@ -121,69 +121,151 @@ class _NewExpenseState extends State<NewExpense> {
       final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
       final width = constraints.maxWidth;
 
-      return SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16, 32, 16, keyboardSpace),
-          child: Column(
-            children: [
-              Text(
-                "Add Expense",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              SizedBox(height: 20),
-              if (width >= 600)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _titleController,
-                        maxLength: 100,
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                            icon: Icon(Icons.title),
-                            label: Text("Enter Title")),
+      return SizedBox(
+        height: double.infinity,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 32, 16, keyboardSpace),
+            child: Column(
+              children: [
+                Text(
+                  "Add Expense",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                SizedBox(height: 20),
+                if (width >= 600)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _titleController,
+                          maxLength: 100,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                              icon: Icon(Icons.title),
+                              label: Text("Enter Title")),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: TextField(
-                        controller: _amountController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            prefixText: "XOF ",
-                            icon: Icon(Icons.money),
-                            label: Text("How much")),
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                              prefixText: "XOF ",
+                              icon: Icon(Icons.money),
+                              label: Text("How much")),
+                        ),
                       ),
-                    ),
-                  ],
-                )
-              else
+                    ],
+                  )
+                else
+                  TextField(
+                    controller: _titleController,
+                    maxLength: 100,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.title), label: Text("Enter Title")),
+                  ),
                 TextField(
-                  controller: _titleController,
-                  maxLength: 100,
+                  controller: _descriptionController,
+                  maxLength: 200,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                      icon: Icon(Icons.title), label: Text("Enter Title")),
+                      icon: Icon(Icons.description),
+                      label: Text("Enter Description (Optional)")),
                 ),
-              TextField(
-                controller: _descriptionController,
-                maxLength: 200,
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                    icon: Icon(Icons.description),
-                    label: Text("Enter Description (Optional)")),
-              ),
-              SizedBox(height: 20),
-              // If the screen is wide enough, show the category and date picker in a row
-              // Otherwise, show them in a column
-
-              if (width >= 600)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: DropdownButton(
+                SizedBox(height: 20),
+                // If the screen is wide enough, show the category and date picker in a row
+                // Otherwise, show them in a column
+        
+                if (width >= 600)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: DropdownButton(
+                            value: _selectedCategory,
+                            items: Category.values.map((item) {
+                              return DropdownMenuItem(
+                                value: item,
+                                child: Text(
+                                  item.name.toUpperCase(),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) => setCategory(value!)),
+                      ),
+                      Row(
+                        children: [
+                          Text(_selectedDate == null
+                              ? "No date selected"
+                              : formatter.format(_selectedDate!)),
+                          IconButton(
+                            onPressed: _presentDatePicker,
+                            icon: Icon(Icons.calendar_month),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                              prefixText: "XOF ",
+                              icon: Icon(Icons.money),
+                              label: Text("How much")),
+                        ),
+                      ),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(_selectedDate == null
+                                ? "No date selected"
+                                : formatter.format(_selectedDate!)),
+                            IconButton(
+                              onPressed: _presentDatePicker,
+                              icon: Icon(Icons.calendar_month),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                SizedBox(height: 20),
+                if (width >= 600)
+                  Row(
+                    // space between the buttons
+                    children: [
+                      Spacer(),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("Cancel")),
+                      Spacer(),
+                      ElevatedButton(
+                        onPressed: submitExpenseData,
+                        child: Text("Save Expense"),
+                      ),
+                      Spacer(),
+                    ],
+                  )
+                else
+                  Row(
+                    // space between the buttons
+        
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Spacer(),
+                      DropdownButton(
                           value: _selectedCategory,
                           items: Category.values.map((item) {
                             return DropdownMenuItem(
@@ -194,100 +276,21 @@ class _NewExpenseState extends State<NewExpense> {
                             );
                           }).toList(),
                           onChanged: (value) => setCategory(value!)),
-                    ),
-                    Row(
-                      children: [
-                        Text(_selectedDate == null
-                            ? "No date selected"
-                            : formatter.format(_selectedDate!)),
-                        IconButton(
-                          onPressed: _presentDatePicker,
-                          icon: Icon(Icons.calendar_month),
-                        ),
-                      ],
-                    ),
-                  ],
-                )
-              else
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _amountController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            prefixText: "XOF ",
-                            icon: Icon(Icons.money),
-                            label: Text("How much")),
+                      Spacer(),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("Cancel")),
+                      ElevatedButton(
+                        onPressed: submitExpenseData,
+                        child: Text("Save Expense"),
                       ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(_selectedDate == null
-                              ? "No date selected"
-                              : formatter.format(_selectedDate!)),
-                          IconButton(
-                            onPressed: _presentDatePicker,
-                            icon: Icon(Icons.calendar_month),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              SizedBox(height: 20),
-              if (width >= 600)
-                Row(
-                  // space between the buttons
-                  children: [
-                    Spacer(),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("Cancel")),
-                    Spacer(),
-                    ElevatedButton(
-                      onPressed: submitExpenseData,
-                      child: Text("Save Expense"),
-                    ),
-                    Spacer(),
-                  ],
-                )
-              else
-                Row(
-                  // space between the buttons
-
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Spacer(),
-                    DropdownButton(
-                        value: _selectedCategory,
-                        items: Category.values.map((item) {
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item.name.toUpperCase(),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) => setCategory(value!)),
-                    Spacer(),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("Cancel")),
-                    ElevatedButton(
-                      onPressed: submitExpenseData,
-                      child: Text("Save Expense"),
-                    ),
-                    Spacer(),
-                  ],
-                )
-            ],
+                      Spacer(),
+                    ],
+                  )
+              ],
+            ),
           ),
         ),
       );

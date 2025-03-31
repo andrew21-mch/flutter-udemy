@@ -53,6 +53,9 @@ class _ExpensesState extends State<Expenses> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
+      // let it respect the device features
+      
+
       builder: (ctx) => NewExpense(onAddExpense: _addExpense),
     );
   }
@@ -94,8 +97,6 @@ class _ExpensesState extends State<Expenses> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
     final isLargeScreen = width >= 600;
 
     Widget mainContent = Center(
