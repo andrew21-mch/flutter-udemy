@@ -1,8 +1,9 @@
-import 'package:expense_tracker/data/expenses.dart';
+import 'package:flutter/material.dart';
+
+import 'package:expense_tracker/widgets/new_expense.dart';
 import 'package:expense_tracker/widgets/expenses_list/expenses_list.dart';
 import 'package:expense_tracker/models/expense.dart';
-import 'package:expense_tracker/widgets/new_expense.dart';
-import 'package:flutter/material.dart';
+import 'package:expense_tracker/widgets/chart/chart.dart';
 
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
@@ -14,92 +15,105 @@ class Expenses extends StatefulWidget {
 }
 
 class _ExpensesState extends State<Expenses> {
-  final List<Expense> _expenses = expenses;
+  final List<Expense> _registeredExpenses = [
+    Expense(
+      title: 'Flutter Course',
+      amount: 19.99,
+      date: DateTime.now(),
+      category: Category.work,
+    ),
+    Expense(
+      title: 'Cinema',
+      amount: 15.69,
+      date: DateTime.now(),
+      category: Category.leisure,
+    ),
+  ];
 
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        builder: (ctx) => NewExpense(onAddExpense: _addExpense));
+      isScrollControlled: true,
+      useSafeArea: true,
+      context: context,
+      builder: (ctx) => NewExpense(onAddExpense: _addExpense),
+    );
   }
 
   void _addExpense(Expense expense) {
     setState(() {
-      _expenses.add(expense);
+      _registeredExpenses.add(expense);
     });
   }
 
   void _removeExpense(Expense expense) {
-    final expenseIndex = _expenses.indexOf(expense);
+    final expenseIndex = _registeredExpenses.indexOf(expense);
     setState(() {
-      expenses.remove(expense);
+      _registeredExpenses.remove(expense);
     });
-
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Expense Deleted"),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
+        content: const Text('Expense deleted.'),
         action: SnackBarAction(
-            label: "Undo",
-            onPressed: () {
-              setState(() {
-                _expenses.insert(expenseIndex, expense);
-              });
-            }),
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              _registeredExpenses.insert(expenseIndex, expense);
+            });
+          },
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget mainContent = Center(
-      child: Card(
-        color: Colors.white,
-        child: Container(
-          padding: EdgeInsets.all(12),
-          child: SizedBox(
-            height: 130,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Icon(Icons.hourglass_empty),
-                Text("No Expenses Found")
-              ],
-            ),
-          ),
-        ),
-      ),
+    // check the device with
+
+    var width = MediaQuery.of(context).size.width;
+    print(MediaQuery.of(context).size.height);
+    Widget mainContent = const Center(
+      child: Text('No expenses found. Start adding some!'),
     );
+
+    if (_registeredExpenses.isNotEmpty) {
+      mainContent = ExpensesList(
+        expenses: _registeredExpenses,
+        onRemoveExpense: _removeExpense,
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Expense Tracker",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color.fromARGB(255, 9, 77, 67),
+        title: const Text('Flutter ExpenseTracker'),
         actions: [
           IconButton(
             onPressed: _openAddExpenseOverlay,
-            icon: Icon(Icons.add),
-            color: Colors.white,
-          )
+            icon: const Icon(Icons.add),
+          ),
         ],
       ),
-      body: Column(
-        children: [
-          Text("The Chart Here"),
-          Expanded(
-              child: _expenses.isNotEmpty
-                  ? ExpensesList(
-                      expenses: _expenses,
-                      onRemoveExpense: _removeExpense,
-                    )
-                  : mainContent),
-        ],
-      ),
+      body: width < 600
+          ? Column(
+              children: [
+                Chart(expenses: _registeredExpenses),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: Chart(expenses: _registeredExpenses),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            ),
     );
   }
 }
